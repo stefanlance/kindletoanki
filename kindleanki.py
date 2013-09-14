@@ -7,33 +7,37 @@ import csv
 import sys
 import re
 import json
-import urllib.request, urllib.parse
+import urllib.request
+from bs4 import BeautifulSoup
+
 
 def set_clippings_path():
     return input("Enter the path to your Calibre Kindle clippings file: ")
 
+
 def get_words(clippings_path=""):
-    # Find Kindle Clippings file (set by Calibre for us)
     # Expects Calibre format
 
     file = open(clippings_path, "r")
-    word_def = dict()
+    word_definition_pairs = dict()
 
     for line in file:
         m = re.match(r"^([\w-]+)[.]?$", line)
         if m:
             word = m.group(1).lower()
-            print(word)
-            url='http://dictionary.reference.com/browse/{0}?s=t'.format(word)
-            print(urllib.request.urlopen(url))
-    
-
-    # Look up their definitions
-    get_definition(word)
+            get_definition(word)
 
     return 0
 
+
 def get_definition(word):
+
+    url='http://dictionary.reference.com/browse/{0}?s=t'.format(word)
+    soup = BeautifulSoup(urllib.request.urlopen(url).read())
+    definition = soup.find_all('div', attrs={'class':'dndata'})
+    if definition:
+        print(definition[0].string)
+
     return 0
 
 
