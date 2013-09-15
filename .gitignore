@@ -1,3 +1,6 @@
 
 # Backup files
 *~
+
+# User-specific data
+data/*

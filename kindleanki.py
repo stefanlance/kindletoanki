@@ -15,36 +15,62 @@ def set_clippings_path():
     return input("Enter the path to your Calibre Kindle clippings file: ")
 
 
-def get_words(clippings_path=""):
+def get_words(clippings_path=''):
     # Expects Calibre format
 
-    file = open(clippings_path, "r")
+    file = open(clippings_path, 'r')
     word_definition_pairs = dict()
 
     for line in file:
-        m = re.match(r"^([\w-]+)[.]?$", line)
-        if m:
-            word = m.group(1).lower()
-            get_definition(word)
+        matched = re.match(r"^([\w-]+)[.]?$", line)
 
-    return 0
+        if matched:
+            word = matched.group(1).lower()
+            definition = get_definition(word)
+
+            if definition:
+                word_definition_pairs[word] = definition
+                print(word, "\t", definition)
+
+
+    file.close()
+
+    return word_definition_pairs
 
 
 def get_definition(word):
 
     url='http://dictionary.reference.com/browse/{0}?s=t'.format(word)
     soup = BeautifulSoup(urllib.request.urlopen(url).read())
-    definition = soup.find_all('div', attrs={'class':'dndata'})
-    if definition:
-        print(definition[0].string)
+    definition = soup.find_all('div', attrs={'class':'dndata'}, text = True)
 
-    return 0
+    if definition:
+        return definition[0].string
+
+    else:
+        return False
+
+
+def get_clippings_path():
+    try:
+        with open('data/clippings_path.txt'):
+            file = open('data/clippings_path.txt', 'r')
+            path = file.readline()
+            file.close()
+            # Also need to ensure user enters a valid path (to a .txt)
+            pass
+
+    except:
+        path = set_clippings_path()
+        file = open('data/clippings_path.txt', 'w')
+        file.write(path)
+        file.close()
+
+    return path
 
 
 def main():
-    # if <clippings_path.txt does not exist>
-    path = set_clippings_path()
-    # add a "change path" option, too...
+    path = get_clippings_path()
     get_words(path)
 
 
