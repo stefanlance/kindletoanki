@@ -3,6 +3,10 @@
 # Kindle to Anki
 # Puts Kindle vocabulary words into Anki with their definitions.
 
+# TODO:
+# - Allow user to set number of definitions obtained
+# - Ensure duplicates aren't added to the deck
+
 import csv
 import sys
 import re
@@ -15,8 +19,18 @@ def set_clippings_path():
     return input("Enter the path to your Calibre Kindle clippings file: ")
 
 
-def get_words(clippings_path=''):
-    # Expects Calibre format
+def save_dictionary(dictionary):
+    file = open('data/dictionary.txt', 'w')
+    for key in dictionary.keys():
+        line = "{0}\t{1}\n".format(key, dictionary[key])
+        print(line)
+        file.write(line)
+
+    file.close()
+
+
+def get_dictionary(clippings_path=''):
+    # Expects Calibre format (or simply a .txt with one word per line)
 
     file = open(clippings_path, 'r')
     word_definition_pairs = dict()
@@ -29,9 +43,9 @@ def get_words(clippings_path=''):
             definition = get_definition(word)
 
             if definition:
+                # Add more than one
                 word_definition_pairs[word] = definition
                 print(word, "\t", definition)
-
 
     file.close()
 
@@ -71,7 +85,8 @@ def get_clippings_path():
 
 def main():
     path = get_clippings_path()
-    get_words(path)
+    dictionary = get_dictionary(path)
+    save_dictionary(dictionary)
 
 
 if __name__ == "__main__":
