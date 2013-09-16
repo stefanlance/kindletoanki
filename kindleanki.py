@@ -12,16 +12,14 @@ import csv
 import sys, os.path
 import re
 import json
-#import urllib.request
 import urllib2
 from bs4 import BeautifulSoup
-#sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from anki.importing import TextImporter
 from anki import Collection
 
 
 def set_path(path_type):
-    return input("Enter the path to your {0} file: ".format(path_type))
+    return raw_input("Enter the path to your {0} file: ".format(path_type))
 
 
 def get_path(path_type):
@@ -32,6 +30,11 @@ def get_path(path_type):
         with open(data):
             file = open(data, 'r')
             path = file.readline()
+
+            if re.compile('^\~').match(path):
+                path = re.sub(r'^\~', path, '')
+                print(path)
+
             file.close()
             # Also need to ensure user enters a valid path (to a .txt)
             pass
@@ -50,10 +53,11 @@ def save_dictionary(dictionary):
     file = open('data/dictionary.txt', 'w')
     for key in dictionary.keys():
         line = "{0}\t{1}\n".format(key, dictionary[key])
-        print(line)
         file.write(line)
 
     file.close()
+
+    print("Saved words and definitions to dictionary file.")
 
 
 def get_dictionary(clippings_path=''):
@@ -83,6 +87,7 @@ def get_definition(word):
     response = urllib2.urlopen(url)
     html = response.read()
     soup = BeautifulSoup(html)
+    # soup = BeautifulSoup(urllib2.openurl(url).read())
     definition = soup.find_all('div', attrs={'class':'dndata'}, text = True)
 
     if definition:
@@ -97,23 +102,25 @@ def add_dictionary_to_anki(collection_path):
     # See:
     # http://ankisrs.net/docs/addons.html#the-collection
 
-    # file = u'data/dictionary.txt'
-    # col = Collection(collection_path)
+    dictionary = u'{0}'.format(os.path.abspath('data/dictionary.txt'))
+    col = Collection(collection_path)
 
-    # # Change to the basic note type
-    # m = mw.col.models.byName('Basic')
-    # mw.col.models.setCurrent(m)
+    # Change to the basic note type
+    m = col.models.byName('Basic')
+    col.models.setCurrent(m)
 
-    # # Set 'Import' as the target deck
-    # m['did'] = mw.col.decks.id('Import')
-    # mw.col.models.save(m)
+    # Set 'Import' as the target deck
+    m['did'] = col.decks.id('Import')
+    col.models.save(m)
 
-    # # Import into the collection
-    # ti = TextImporter(mw.col, file)
-    # ti.initMapping()
-    # ti.run()
+    # Import into the collection
+    ti = TextImporter(col, dictionary)
+    ti.initMapping()
+    ti.run()
     
-    # col.close()
+    col.close()
+
+    print("Imported dictionary into collection.")
 
     return 0
 
