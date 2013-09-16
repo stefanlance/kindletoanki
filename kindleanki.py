@@ -136,7 +136,11 @@ def add_dictionary_to_anki(collection_path, deck_name = 'Import'):
 def main():
     clippings_path = get_path('clippings')
     collection_path = get_path('collection')
-    deck_name = set_deck_name()
+
+    if len(sys.argv) < 2:
+        deck_name = set_deck_name()
+    else:
+        deck_name = sys.argv[1]
 
     dictionary = get_dictionary(clippings_path)
     save_dictionary(dictionary)
