@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 # Kindle to Anki
 # Puts Kindle vocabulary words into Anki with their definitions.
@@ -9,13 +9,14 @@
 # - Ensure user enters a valid path
 
 import csv
-import sys
+import sys, os.path
 import re
 import json
 #import urllib.request
 import urllib2
 from bs4 import BeautifulSoup
-from anki.anki.importing import TextImporter
+#sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+from anki.importing import TextImporter
 from anki import Collection
 
 
@@ -78,7 +79,10 @@ def get_dictionary(clippings_path=''):
 def get_definition(word):
 
     url = 'http://dictionary.reference.com/browse/{0}?s=t'.format(word)
-    soup = BeautifulSoup(urllib.request.urlopen(url).read())
+    # Does it matter whether we use request?
+    response = urllib2.urlopen(url)
+    html = response.read()
+    soup = BeautifulSoup(html)
     definition = soup.find_all('div', attrs={'class':'dndata'}, text = True)
 
     if definition:
