@@ -5,8 +5,9 @@
 
 # TODO:
 # - Allow user to set number of definitions obtained
-# - Ensure duplicates aren't added to the deck
 # - Ensure user enters a valid path
+# - Allow user to import cards to multiple decks (no duplicates is global)
+
 
 import csv
 import sys, os.path
@@ -48,6 +49,10 @@ def get_path(path_type):
     return path
 
 
+def set_deck_name():
+    return raw_input("Name of deck to which your cards will be imported: ")
+
+
 def save_dictionary(dictionary):
 
     file = open('data/dictionary.txt', 'w')
@@ -65,6 +70,8 @@ def get_dictionary(clippings_path=''):
     file = open(clippings_path, 'r')
     word_definition_pairs = dict()
 
+    print("Found Kindle clippings file.")
+
     for line in file:
         matched = re.match(r"^([\w-]+)[.]?$", line)
 
@@ -77,6 +84,8 @@ def get_dictionary(clippings_path=''):
 
     file.close()
 
+    print("Got word definitions from web.")
+
     return word_definition_pairs
 
 
@@ -87,7 +96,6 @@ def get_definition(word):
     response = urllib2.urlopen(url)
     html = response.read()
     soup = BeautifulSoup(html)
-    # soup = BeautifulSoup(urllib2.openurl(url).read())
     definition = soup.find_all('div', attrs={'class':'dndata'}, text = True)
 
     if definition:
@@ -98,7 +106,7 @@ def get_definition(word):
         return False
 
 
-def add_dictionary_to_anki(collection_path):
+def add_dictionary_to_anki(collection_path, deck_name = 'Import'):
     # See:
     # http://ankisrs.net/docs/addons.html#the-collection
 
@@ -110,7 +118,7 @@ def add_dictionary_to_anki(collection_path):
     col.models.setCurrent(m)
 
     # Set 'Import' as the target deck
-    m['did'] = col.decks.id('Import')
+    m['did'] = col.decks.id(deck_name)
     col.models.save(m)
 
     # Import into the collection
@@ -128,10 +136,11 @@ def add_dictionary_to_anki(collection_path):
 def main():
     clippings_path = get_path('clippings')
     collection_path = get_path('collection')
+    deck_name = set_deck_name()
 
     dictionary = get_dictionary(clippings_path)
     save_dictionary(dictionary)
-    add_dictionary_to_anki(collection_path)
+    add_dictionary_to_anki(collection_path, deck_name)
 
 
 if __name__ == "__main__":
