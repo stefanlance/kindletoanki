@@ -12,10 +12,11 @@ import csv
 import sys
 import re
 import json
-import urllib.request
+#import urllib.request
+import urllib2
 from bs4 import BeautifulSoup
-# from anki.importing import TextImporter
-# from anki import Collection
+from anki.anki.importing import TextImporter
+from anki import Collection
 
 
 def set_path(path_type):
