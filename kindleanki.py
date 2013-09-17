@@ -7,6 +7,7 @@
 # - Allow user to set number of definitions obtained
 # - Ensure user enters a valid path
 # - Allow user to import cards to multiple decks (no duplicates is global)
+# - Fix "no module" errors that occur when not using virtualenv
 
 
 import csv
@@ -20,7 +21,16 @@ from anki import Collection
 
 
 def set_path(path_type):
-    return raw_input("Enter the path to your {0} file: ".format(path_type))
+
+    path_extensions = {'clippings':'txt', 'collection':'anki2'}
+    ext = path_extensions[path_type]
+    path = ''
+
+    while path.split('.')[-1] != ext:
+        path = raw_input("Enter the path to your "
+                         "{0} file: ".format(path_type))
+
+    return path
 
 
 def get_path(path_type):
@@ -30,18 +40,17 @@ def get_path(path_type):
     try:
         with open(data):
             file = open(data, 'r')
-            path = file.readline()
-
-            if re.compile('^\~').match(path):
-                path = re.sub(r'^\~', path, '')
-                print(path)
+            path = os.path.expanduser(file.readline())
+            #path = os.path.expanduser(path)
 
             file.close()
             # Also need to ensure user enters a valid path (to a .txt)
             pass
 
     except:
-        path = set_path(path_type)
+        path = os.path.expanduser(set_path(path_type))
+        #path = os.path.expanduser(path)
+
         file = open(data, 'w')
         file.write(path)
         file.close()
@@ -50,7 +59,14 @@ def get_path(path_type):
 
 
 def set_deck_name():
-    return raw_input("Name of deck to which your cards will be imported: ")
+
+    if len(sys.argv) < 2:
+        deck_name = raw_input("Name of deck to which your cards will "
+                              "be imported: ")
+    else:
+        deck_name = sys.argv[1]
+
+    return deck_name
 
 
 def save_dictionary(dictionary):
@@ -99,7 +115,9 @@ def get_definition(word):
     definition = soup.find_all('div', attrs={'class':'dndata'}, text = True)
 
     if definition:
-        # Add multiple definitions here (maybe by part of speech?)
+
+        for d in definition:
+            print(d.string)
         return definition[0].string
 
     else:
@@ -136,11 +154,7 @@ def add_dictionary_to_anki(collection_path, deck_name = 'Import'):
 def main():
     clippings_path = get_path('clippings')
     collection_path = get_path('collection')
-
-    if len(sys.argv) < 2:
-        deck_name = set_deck_name()
-    else:
-        deck_name = sys.argv[1]
+    deck_name = set_deck_name()
 
     dictionary = get_dictionary(clippings_path)
     save_dictionary(dictionary)
