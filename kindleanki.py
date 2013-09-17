@@ -40,7 +40,7 @@ def get_path(path_type):
     try:
         with open(data):
             file = open(data, 'r')
-            path = os.path.expanduser(file.readline())
+            path = unicode(os.path.expanduser(file.readline()))
             #path = os.path.expanduser(path)
 
             file.close()
@@ -48,7 +48,7 @@ def get_path(path_type):
             pass
 
     except:
-        path = os.path.expanduser(set_path(path_type))
+        path = unicode(os.path.expanduser(set_path(path_type)))
         #path = os.path.expanduser(path)
 
         file = open(data, 'w')
@@ -89,10 +89,12 @@ def get_dictionary(clippings_path=''):
     print("Found Kindle clippings file.")
 
     for line in file:
-        matched = re.match(r"^([\w-]+)[.]?$", line)
+
+        matched = re.match(r'(^|\r\n)([\w-]+)[.]?($|\r\n)',
+                           line, re.MULTILINE)
 
         if matched:
-            word = matched.group(1).lower()
+            word = matched.group(2).lower()
             definition = get_definition(word)
 
             if definition:
@@ -115,9 +117,9 @@ def get_definition(word):
     definition = soup.find_all('div', attrs={'class':'dndata'}, text = True)
 
     if definition:
-
         for d in definition:
             print(d.string)
+
         return definition[0].string
 
     else:
@@ -128,7 +130,7 @@ def add_dictionary_to_anki(collection_path, deck_name = 'Import'):
     # See:
     # http://ankisrs.net/docs/addons.html#the-collection
 
-    dictionary = u'{0}'.format(os.path.abspath('data/dictionary.txt'))
+    dictionary = unicode(os.path.abspath('data/dictionary.txt'))
     col = Collection(collection_path)
 
     # Change to the basic note type
@@ -158,7 +160,7 @@ def main():
 
     dictionary = get_dictionary(clippings_path)
     save_dictionary(dictionary)
-    add_dictionary_to_anki(collection_path, deck_name)
+#    add_dictionary_to_anki(collection_path, deck_name)
 
 
 if __name__ == "__main__":
