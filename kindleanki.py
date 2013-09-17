@@ -41,7 +41,6 @@ def get_path(path_type):
         with open(data):
             file = open(data, 'r')
             path = unicode(os.path.expanduser(file.readline()))
-            #path = os.path.expanduser(path)
 
             file.close()
             # Also need to ensure user enters a valid path (to a .txt)
@@ -49,7 +48,6 @@ def get_path(path_type):
 
     except:
         path = unicode(os.path.expanduser(set_path(path_type)))
-        #path = os.path.expanduser(path)
 
         file = open(data, 'w')
         file.write(path)
@@ -95,6 +93,8 @@ def get_dictionary(clippings_path=''):
 
         if matched:
             word = matched.group(2).lower()
+            print("\n\n")
+            print(word)
             definition = get_definition(word)
 
             if definition:
@@ -114,16 +114,34 @@ def get_definition(word):
     response = urllib2.urlopen(url)
     html = response.read()
     soup = BeautifulSoup(html)
+
     definition = soup.find_all('div', attrs={'class':'dndata'}, text = True)
+    whole = soup.find_all('div', attrs={'class':'pbk'})
 
-    if definition:
-        for d in definition:
-            print(d.string)
 
-        return definition[0].string
+    if whole:
+        for entry in whole:
+            part_of_speech = entry.find_all('span', attrs={'class':'pg'})
+            def_num = 1
 
-    else:
-        return False
+            if part_of_speech:
+                print('\t' + part_of_speech[0].string)
+
+            for definition in entry.find_all('div',
+                                             attrs={'class':'dndata'},
+                                             text = True):
+                print('\t\t' + definition.string)
+            
+
+    # if definition:
+    #     # for d in definition:
+    #     #     print(d.string)
+    #     print(definition[0].string)
+
+    #     return definition[0].string
+
+    # else:
+    #     return False
 
 
 def add_dictionary_to_anki(collection_path, deck_name = 'Import'):
@@ -160,7 +178,7 @@ def main():
 
     dictionary = get_dictionary(clippings_path)
     save_dictionary(dictionary)
-#    add_dictionary_to_anki(collection_path, deck_name)
+    add_dictionary_to_anki(collection_path, deck_name)
 
 
 if __name__ == "__main__":
