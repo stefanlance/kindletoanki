@@ -8,6 +8,8 @@
 # - Ensure user enters a valid path
 # - Allow user to import cards to multiple decks (no duplicates is global)
 # - -Fix "no module" errors that occur when not using virtualenv-
+# - After a deck has been set, using a deck of a different name does not
+# work (could be for todo #3)
 
 
 import csv
@@ -36,6 +38,8 @@ def set_path(path_type):
 def get_path(path_type):
 
     data = 'data/{0}_path.txt'.format(path_type)
+
+    # Do we have a command-line arg? If so, 
 
     try:
         with open(data):
@@ -125,13 +129,13 @@ def get_definition(word):
             def_num = 1
 
             if part_of_speech:
-                dict_entry += u'<b>{0}'.format(part_of_speech[0].string)
+                dict_entry += u'</br><b>{0}'.format(part_of_speech[0].string)
                 dict_entry += '</b></br>'
 
             for definition in entry.find_all('div',
                                              attrs={'class':'dndata'},
                                              text = True):
-                dict_entry += u'{0}</br>'.format(definition.string)
+                dict_entry += u'<li>{0}</li>'.format(definition.string)
             
 
     if dict_entry:
@@ -159,6 +163,7 @@ def add_dictionary_to_anki(collection_path, deck_name = 'Import'):
 
     # Import into the collection
     ti = TextImporter(col, dictionary)
+    ti.allowHTML = True
     ti.initMapping()
     ti.run()
     
