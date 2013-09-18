@@ -7,7 +7,7 @@
 # - Allow user to set number of definitions obtained
 # - Ensure user enters a valid path
 # - Allow user to import cards to multiple decks (no duplicates is global)
-# - Fix "no module" errors that occur when not using virtualenv
+# - -Fix "no module" errors that occur when not using virtualenv-
 
 
 import csv
@@ -71,7 +71,7 @@ def save_dictionary(dictionary):
 
     file = open('data/dictionary.txt', 'w')
     for key in dictionary.keys():
-        line = "{0}\t{1}\n".format(key, dictionary[key])
+        line = u"{0}\t{1}\n".format(key, dictionary[key])
         file.write(line)
 
     file.close()
@@ -115,33 +115,31 @@ def get_definition(word):
     html = response.read()
     soup = BeautifulSoup(html)
 
-    definition = soup.find_all('div', attrs={'class':'dndata'}, text = True)
-    whole = soup.find_all('div', attrs={'class':'pbk'})
+    soup_group = soup.find_all('div', attrs={'class':'pbk'})
 
+    dict_entry = ''
 
-    if whole:
-        for entry in whole:
+    if soup_group:
+        for entry in soup_group:
             part_of_speech = entry.find_all('span', attrs={'class':'pg'})
             def_num = 1
 
             if part_of_speech:
-                print('\t' + part_of_speech[0].string)
+                dict_entry += u'<b>{0}'.format(part_of_speech[0].string)
+                dict_entry += '</b></br>'
 
             for definition in entry.find_all('div',
                                              attrs={'class':'dndata'},
                                              text = True):
-                print('\t\t' + definition.string)
+                dict_entry += u'{0}</br>'.format(definition.string)
             
 
-    # if definition:
-    #     # for d in definition:
-    #     #     print(d.string)
-    #     print(definition[0].string)
+    if dict_entry:
+        print(dict_entry)
+        return dict_entry
 
-    #     return definition[0].string
-
-    # else:
-    #     return False
+    else:
+        return False
 
 
 def add_dictionary_to_anki(collection_path, deck_name = 'Import'):
