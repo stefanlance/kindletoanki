@@ -14,6 +14,7 @@
 
 import csv
 import sys, os.path
+import getopt
 import re
 import json
 import urllib2
@@ -39,8 +40,6 @@ def get_path(path_type):
 
     data = 'data/{0}_path.txt'.format(path_type)
 
-    # Do we have a command-line arg? If so, 
-
     try:
         with open(data):
             file = open(data, 'r')
@@ -62,11 +61,11 @@ def get_path(path_type):
 
 def set_deck_name():
 
-    if len(sys.argv) < 2:
-        deck_name = raw_input("Name of deck to which your cards will "
-                              "be imported: ")
-    else:
-        deck_name = sys.argv[1]
+#    if len(sys.argv) < 2:
+    deck_name = raw_input("Name of deck to which your cards will "
+                          "be imported: ")
+#    else:
+#        deck_name = sys.argv[1]
 
     return deck_name
 
@@ -174,10 +173,56 @@ def add_dictionary_to_anki(collection_path, deck_name = 'Import'):
     return 0
 
 
-def main():
+def usage():
+    print(""" Usage """)
+
+
+def main(argv):
+
+    try:
+        opts, args = getopt.getopt(argv,
+                                   "d:k:a:", ["deck=", "kindle=", "anki="])
+    except getopt.GetoptError:
+        usage()
+        sys.exit(2)
+
+        
+    candidate_deck_name = ''
+    candidate_clippings_path = ''
+    candidate_collection_path = ''
+
+    for opt, arg in opts:
+        if opt in ("-d", "--deck"):
+            candidate_deck_name = arg
+
+        elif opt in ("-k", "--kindle"):
+            candidate_clippings_path = arg
+
+        elif opt in ("-a", "--anki"):
+            candidate_collection_path = arg
+
+
+    if len(candidate_clippings_path) > 0:
+        data = 'data/clippings_path.txt'
+        path = unicode(os.path.expanduser(data))
+        file = open(data, 'w')
+        file.write(path)
+        file.close()
+
+    if len(candidate_collection_path) > 0:
+        data = 'data/collection_path.txt'
+        path = unicode(os.path.expanduser(data))
+        file = open(data, 'w')
+        file.write(path)
+        file.close()
+
     clippings_path = get_path('clippings')
     collection_path = get_path('collection')
-    deck_name = set_deck_name()
+
+    if len(candidate_deck_name) > 0:
+        deck_name = candidate_deck_name
+    else:
+        deck_name = set_deck_name()
 
     dictionary = get_dictionary(clippings_path)
     save_dictionary(dictionary)
@@ -185,4 +230,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:])
