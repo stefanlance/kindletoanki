@@ -181,7 +181,9 @@ def main(argv):
 
     try:
         opts, args = getopt.getopt(argv,
-                                   "d:k:a:", ["deck=", "kindle=", "anki="])
+                                   "d:k:a:",
+                                   ["deck=", "kindle=", "anki="])
+
     except getopt.GetoptError:
         usage()
         sys.exit(2)
