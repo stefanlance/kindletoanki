@@ -7,17 +7,9 @@
 # - Allow user to set number of definitions obtained
 # - Ensure user enters a valid path
 # - Allow user to import cards to multiple decks (no duplicates is global)
-# - -Fix "no module" errors that occur when not using virtualenv-
-# - After a deck has been set, using a deck of a different name does not
-# work (could be for todo #3)
 
 
-import csv
-import sys, os.path
-import getopt
-import re
-import json
-import urllib2
+import csv, sys, os.path, getopt, re, json, urllib2
 from bs4 import BeautifulSoup
 from anki.importing import TextImporter
 from anki import Collection
@@ -204,14 +196,14 @@ def main(argv):
 
     if len(candidate_clippings_path) > 0:
         data = 'data/clippings_path.txt'
-        path = unicode(os.path.expanduser(data))
+        path = unicode(os.path.expanduser(candidate_clippings_path))
         file = open(data, 'w')
         file.write(path)
         file.close()
 
     if len(candidate_collection_path) > 0:
         data = 'data/collection_path.txt'
-        path = unicode(os.path.expanduser(data))
+        path = unicode(os.path.expanduser(candidate_collection_path))
         file = open(data, 'w')
         file.write(path)
         file.close()
