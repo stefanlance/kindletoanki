@@ -7,6 +7,7 @@
 # - Allow user to set number of definitions obtained
 # - Ensure user enters a valid path
 # - Allow user to import cards to multiple decks (no duplicates is global)
+# - Clean up main()
 
 
 import csv, sys, os.path, getopt, re, json, urllib2
@@ -166,7 +167,14 @@ def add_dictionary_to_anki(collection_path, deck_name = 'Import'):
 
 
 def usage():
-    print(""" Usage """)
+    print(
+"""
+Usage: python kindleanki.py [OPTION...]
+
+-d, --deck=DECK_NAME\tspecify name of deck to which cards will be imported
+-k, --kindle=PATH\tspecify location of Kindle clippings file (.txt)
+-a, --anki=PATH\t\tspecify location of Anki collection file (.anki2)
+""")
 
 
 def main(argv):
