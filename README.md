@@ -24,3 +24,8 @@ Instructions
 ------------
 
 To run, type `python kindleanki.py`. If an argument isn't supplied, the program will input the cards to a deck called "Import". If an argument is supplied, the program will import the cards to the specified deck. For example, `python kindleanki.py Vocabulary` will import the cards to a deck called "Vocabulary".
+
+Note
+----
+
+I do not own Anki and I did not create Anki. The Anki files in this repository are from here: https://github.com/dae/anki
